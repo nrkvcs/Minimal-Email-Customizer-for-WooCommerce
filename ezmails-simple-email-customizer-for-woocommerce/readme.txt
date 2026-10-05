@@ -1,16 +1,15 @@
-=== Minimal Email Customizer for WooCommerce ===
+=== EZmails - Simple Email Customizer for WooCommerce ===
 Contributors: norkovacs
-Donate link: https://kovacs.cloud/donate
 Tags: woocommerce, email, email customizer, email templates, shortcodes
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Lightweight WooCommerce email customizer: fixed header and footer, simple design options, editable email text and dynamic order shortcodes.
+Simple and effective WooCommerce email customizer: fixed header and footer, easy design options, editable email text and order shortcodes.
 
 == Description ==
 
@@ -21,7 +20,7 @@ I originally built it for myself and my clients, to make my life easier. Then I 
 = What you get =
 
 * **One fixed header and footer for every email.** Add your logo, a tagline, footer text and social links once and they appear on all WooCommerce emails, including emails from other plugins that use the standard WooCommerce email hooks.
-* **Simple design controls.** Colours, fonts, font sizes, heading style, layout, buttons and ready-made Classic, Dark and Minimal presets. Need more? Add your own CSS.
+* **Simple design controls.** Colours, fonts, font sizes, heading style, layout, buttons and ready-made Classic, Dark and Minimal presets.
 * **Edit each email.** Change the subject, the heading, and the text of every email, in one of three ways:
     * keep the WooCommerce default body and add your own intro or extra text,
     * replace only the message between the heading and the order details, and keep the order table,
@@ -42,7 +41,7 @@ Shortcodes work in the subject, heading, intro, email text, additional content, 
 * `[site_title]`, `[store_address]`, `[current_year]`, `[my_account_url]`
 * `[order_view_url]`, `[order_pay_url]`, `[reset_password_url]`
 
-The full list is on the Shortcodes tab of the settings page. Developers can add their own with the `mecw_shortcodes` filter.
+The full list is on the Shortcodes tab of the settings page. Developers can add their own with the `ezmails_shortcodes` filter.
 
 = Notes =
 
@@ -54,7 +53,7 @@ The full list is on the Shortcodes tab of the settings page. Developers can add 
 1. Make sure WooCommerce is installed and active.
 2. Upload the plugin to the `/wp-content/plugins/` directory, or install it from the Plugins screen in WordPress.
 3. Activate the plugin through the Plugins screen.
-4. Go to **WooCommerce → Email Customizer** to set up your header, footer and design, then edit your emails.
+4. Go to **WooCommerce → EZmails** to set up your header, footer and design, then edit your emails.
 5. Use the **Preview & Test** tab to check the result.
 
 == Frequently Asked Questions ==
@@ -65,7 +64,7 @@ Yes. The plugin customizes WooCommerce emails and does nothing without WooCommer
 
 = Where are the settings? =
 
-Under **WooCommerce → Email Customizer**.
+Under **WooCommerce → EZmails**.
 
 = Can I change only the text of an email and keep the order details? =
 
@@ -101,7 +100,7 @@ Yes, it is compatible with HPOS.
 
 = Can I add my own shortcodes? =
 
-Yes, with the `mecw_shortcodes` filter. Each shortcode has a group, a label, a callback and an HTML flag.
+Yes, with the `ezmails_shortcodes` filter. Each shortcode has a group, a label, a callback and an HTML flag.
 
 = Does the plugin collect data or connect to external services? =
 
@@ -117,8 +116,14 @@ No. It stores its settings in your database and makes no external requests. Sett
 
 == Changelog ==
 
+= 1.4.0 =
+* Renamed to "EZmails - Simple Email Customizer for WooCommerce" (new slug and code prefix `ezmails`).
+* Removed the custom CSS field. Use the Design tab options instead.
+* Removed admin notices outside the plugin's own settings page.
+* Settings saved by earlier builds are carried over automatically.
+
 = 1.3.1 =
-* Plugin Check fixes: developer hooks are now prefixed (`mecw_shortcodes`, `mecw_prepare_email`) and the preview and test-email requests verify their security nonce directly.
+* Plugin Check fixes: developer hooks are now prefixed (`ezmails_shortcodes`, `ezmails_prepare_email`) and the preview and test-email requests verify their security nonce directly.
 
 = 1.3.0 =
 * New: Import / Export tab to back up and migrate settings and email content between sites.
@@ -129,7 +134,7 @@ No. It stores its settings in your database and makes no external requests. Sett
 * Fix: the link colour setting is now always applied to links in the email body, even where WooCommerce's own styles tried to override it.
 
 = 1.2.0 =
-* New Design tab: typography (fonts, sizes, weight, case, spacing), colours, layout, buttons, presets and custom CSS.
+* New Design tab: typography (fonts, sizes, weight, case, spacing), colours, layout, buttons and presets.
 * New "Custom text only" body mode: replace just the text between the heading and the order details.
 * New `[button]` shortcode.
 * Body mode settings now show only the fields that apply to the selected mode.
@@ -143,8 +148,11 @@ No. It stores its settings in your database and makes no external requests. Sett
 
 == Upgrade Notice ==
 
+= 1.4.0 =
+Plugin renamed to EZmails. The custom CSS field was removed; all other settings are kept.
+
 = 1.3.1 =
-Developer hooks were renamed to `mecw_shortcodes` and `mecw_prepare_email`. Only relevant if you extended the plugin.
+Developer hooks were renamed to `ezmails_shortcodes` and `ezmails_prepare_email`. Only relevant if you extended the plugin.
 
 = 1.3.0 =
 Adds Import / Export and safer updates. Settings are kept.

@@ -5,7 +5,7 @@ defined( 'ABSPATH' ) || exit;
  * Hooks into WooCommerce emails: fixed header/footer, subject, heading, intro,
  * additional content and optional full custom body.
  */
-class MECW_Mailer {
+class EZMAILS_Mailer {
 
 	private static $instance = null;
 
@@ -46,7 +46,7 @@ class MECW_Mailer {
 	}
 
 	private function enabled() {
-		return (bool) MECW_Settings::general( 'enabled' );
+		return (bool) EZMAILS_Settings::general( 'enabled' );
 	}
 
 	/* ------------------------------------------------------------------
@@ -83,7 +83,7 @@ class MECW_Mailer {
 		if ( ! $this->enabled() ) {
 			return $value;
 		}
-		$cfg = MECW_Settings::email( $id );
+		$cfg = EZMAILS_Settings::email( $id );
 		$tpl = trim( $cfg[ $field ] );
 		if ( '' === $tpl ) {
 			return $value;
@@ -97,7 +97,7 @@ class MECW_Mailer {
 		}
 		$html = ( 'additional' === $field ) && $email instanceof WC_Email && 'plain' !== $email->get_email_type();
 
-		return MECW_Shortcodes::render( $tpl, MECW_Shortcodes::context( $email instanceof WC_Email ? $email : null ), $html );
+		return EZMAILS_Shortcodes::render( $tpl, EZMAILS_Shortcodes::context( $email instanceof WC_Email ? $email : null ), $html );
 	}
 
 	private function unhook_defaults( $mailer = null ) {
@@ -119,8 +119,8 @@ class MECW_Mailer {
 		$this->additional_used = false;
 		$this->text_level      = 0;
 
-		$cfg = $this->current_email ? MECW_Settings::email( $this->current_email->id ) : MECW_Settings::email( '' );
-		$ctx = MECW_Shortcodes::context( $this->current_email );
+		$cfg = $this->current_email ? EZMAILS_Settings::email( $this->current_email->id ) : EZMAILS_Settings::email( '' );
+		$ctx = EZMAILS_Shortcodes::context( $this->current_email );
 
 		if ( 'custom' === $cfg['body_mode'] && trim( $cfg['custom_body'] ) !== '' ) {
 			// Swallow WooCommerce's default body; we print our own in footer().
@@ -154,7 +154,7 @@ class MECW_Mailer {
 		}
 		ob_end_clean();
 		$this->text_level = 0;
-		echo $this->block( $this->text_tpl, MECW_Shortcodes::context( $this->current_email ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+		echo $this->block( $this->text_tpl, EZMAILS_Shortcodes::context( $this->current_email ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 
 	public function footer( $email = null ) {
@@ -162,7 +162,7 @@ class MECW_Mailer {
 			return;
 		}
 		$email = $email instanceof WC_Email ? $email : $this->current_email;
-		$ctx   = MECW_Shortcodes::context( $email );
+		$ctx   = EZMAILS_Shortcodes::context( $email );
 
 		if ( $this->text_level ) {
 			// No order table in this email (e.g. account emails): keep the default content, our text goes on top.
@@ -181,7 +181,7 @@ class MECW_Mailer {
 			}
 			$this->buffer_level = 0;
 
-			$cfg     = MECW_Settings::email( $email ? $email->id : '' );
+			$cfg     = EZMAILS_Settings::email( $email ? $email->id : '' );
 			$heading = ( $email && $email->get_heading() ) ? $email->get_heading() : '';
 			$body    = $email ? $email->format_string( $cfg['custom_body'] ) : $cfg['custom_body'];
 
@@ -191,7 +191,7 @@ class MECW_Mailer {
 
 		// Some third-party templates never print WooCommerce's "additional content"; do it for them.
 		if ( $email && ! $this->additional_used ) {
-			$cfg = MECW_Settings::email( $email->id );
+			$cfg = EZMAILS_Settings::email( $email->id );
 			if ( trim( $cfg['additional'] ) !== '' && 'custom' !== $cfg['body_mode'] && 'plain' !== $email->get_email_type() ) {
 				echo $this->block( $email->format_string( $cfg['additional'] ), $ctx ); // phpcs:ignore WordPress.Security.EscapeOutput
 			}
@@ -208,7 +208,7 @@ class MECW_Mailer {
 		$tpl = wpautop( $tpl );
 		// Don't leave block-level shortcodes wrapped in <p>.
 		$tpl = preg_replace( '#<p>\s*(\[(?:order_details|customer_details|addresses|button)[^\]]*\])\s*</p>#i', '$1', $tpl );
-		return MECW_Shortcodes::render( $tpl, $ctx, true );
+		return EZMAILS_Shortcodes::render( $tpl, $ctx, true );
 	}
 
 	/**
@@ -217,7 +217,7 @@ class MECW_Mailer {
 	 * @return array [ body, heading ]
 	 */
 	public static function font_stacks( $g ) {
-		$fonts = MECW_Settings::fonts();
+		$fonts = EZMAILS_Settings::fonts();
 		$body  = '' !== $g['font_custom'] ? $g['font_custom'] : $fonts[ $g['font'] ][1];
 		$head  = ( 'inherit' === $g['heading_font'] || ! isset( $fonts[ $g['heading_font'] ] ) ) ? $body : $fonts[ $g['heading_font'] ][1];
 		return array( $body, $head );
@@ -238,7 +238,7 @@ class MECW_Mailer {
 	}
 
 	private function open( $heading, $ctx ) {
-		$g       = MECW_Settings::general();
+		$g       = EZMAILS_Settings::general();
 		$stacks  = self::font_stacks( $g );
 		$font    = $stacks[0];
 		$width   = (int) $g['width'];
@@ -261,38 +261,38 @@ class MECW_Mailer {
 	<title><?php echo esc_html( get_bloginfo( 'name', 'display' ) ); ?></title>
 </head>
 <body <?php echo is_rtl() ? 'rightmargin' : 'leftmargin'; ?>="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" style="margin:0;padding:0;background-color:<?php echo esc_attr( $g['page_bg'] ); ?>;">
-<div id="wec-wrapper" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>" style="background-color:<?php echo esc_attr( $g['page_bg'] ); ?>;margin:0;padding:0;width:100%;">
+<div id="ezmails-wrapper" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>" style="background-color:<?php echo esc_attr( $g['page_bg'] ); ?>;margin:0;padding:0;width:100%;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:<?php echo esc_attr( $g['page_bg'] ); ?>;">
 <tr><td align="center" style="padding:<?php echo esc_attr( $pp ); ?>px 12px;">
-<table role="presentation" id="wec-container" width="<?php echo esc_attr( $width ); ?>" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:<?php echo esc_attr( $width ); ?>px;background-color:<?php echo esc_attr( $g['body_bg'] ); ?>;border-radius:<?php echo esc_attr( $radius ); ?>px;overflow:hidden;">
+<table role="presentation" id="ezmails-container" width="<?php echo esc_attr( $width ); ?>" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:<?php echo esc_attr( $width ); ?>px;background-color:<?php echo esc_attr( $g['body_bg'] ); ?>;border-radius:<?php echo esc_attr( $radius ); ?>px;overflow:hidden;">
 
-	<tr><td class="wec-header" align="<?php echo esc_attr( $align ); ?>" style="background-color:<?php echo esc_attr( $g['header_bg'] ); ?>;color:<?php echo esc_attr( $g['header_color'] ); ?>;padding:28px <?php echo esc_attr( $cp ); ?>px;text-align:<?php echo esc_attr( $align ); ?>;font-family:<?php echo esc_attr( $font ); ?>;">
+	<tr><td class="ezmails-header" align="<?php echo esc_attr( $align ); ?>" style="background-color:<?php echo esc_attr( $g['header_bg'] ); ?>;color:<?php echo esc_attr( $g['header_color'] ); ?>;padding:28px <?php echo esc_attr( $cp ); ?>px;text-align:<?php echo esc_attr( $align ); ?>;font-family:<?php echo esc_attr( $font ); ?>;">
 		<?php if ( $g['logo_url'] ) : ?>
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><img src="<?php echo esc_url( $g['logo_url'] ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" width="<?php echo esc_attr( (int) $g['logo_width'] ); ?>" style="display:inline-block;border:0;max-width:100%;height:auto;width:<?php echo esc_attr( (int) $g['logo_width'] ); ?>px;" /></a>
 		<?php else : ?>
 			<div style="font-size:24px;font-weight:bold;line-height:1.3;color:<?php echo esc_attr( $g['header_color'] ); ?>;"><?php echo esc_html( get_bloginfo( 'name', 'display' ) ); ?></div>
 		<?php endif; ?>
 		<?php if ( $tagline ) : ?>
-			<div class="wec-tagline" style="margin-top:8px;font-size:13px;line-height:1.5;color:<?php echo esc_attr( $g['header_color'] ); ?>;"><?php echo $tagline; // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
+			<div class="ezmails-tagline" style="margin-top:8px;font-size:13px;line-height:1.5;color:<?php echo esc_attr( $g['header_color'] ); ?>;"><?php echo $tagline; // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
 		<?php endif; ?>
 	</td></tr>
 
 	<?php if ( $has_h && ! $inline ) : ?>
-	<tr><td class="wec-heading" align="<?php echo esc_attr( $align ); ?>" style="background-color:<?php echo esc_attr( $g['heading_bg'] ); ?>;padding:24px <?php echo esc_attr( $cp ); ?>px;text-align:<?php echo esc_attr( $align ); ?>;font-family:<?php echo esc_attr( $font ); ?>;">
+	<tr><td class="ezmails-heading" align="<?php echo esc_attr( $align ); ?>" style="background-color:<?php echo esc_attr( $g['heading_bg'] ); ?>;padding:24px <?php echo esc_attr( $cp ); ?>px;text-align:<?php echo esc_attr( $align ); ?>;font-family:<?php echo esc_attr( $font ); ?>;">
 		<h1 style="<?php echo esc_attr( $this->heading_style( $g, $g['heading_color'] ) ); ?>"><?php echo esc_html( $heading ); ?></h1>
 	</td></tr>
 	<?php endif; ?>
 
-	<tr><td class="wec-body" align="<?php echo is_rtl() ? 'right' : 'left'; ?>" style="padding:32px <?php echo esc_attr( $cp ); ?>px;font-family:<?php echo esc_attr( $font ); ?>;font-size:<?php echo esc_attr( (int) $g['font_size'] ); ?>px;line-height:<?php echo esc_attr( round( $g['line_height'] / 100, 2 ) ); ?>;color:<?php echo esc_attr( $g['text_color'] ); ?>;text-align:<?php echo is_rtl() ? 'right' : 'left'; ?>;">
+	<tr><td class="ezmails-body" align="<?php echo is_rtl() ? 'right' : 'left'; ?>" style="padding:32px <?php echo esc_attr( $cp ); ?>px;font-family:<?php echo esc_attr( $font ); ?>;font-size:<?php echo esc_attr( (int) $g['font_size'] ); ?>px;line-height:<?php echo esc_attr( round( $g['line_height'] / 100, 2 ) ); ?>;color:<?php echo esc_attr( $g['text_color'] ); ?>;text-align:<?php echo is_rtl() ? 'right' : 'left'; ?>;">
 	<?php if ( $has_h && $inline ) : ?>
-		<h1 class="wec-inline-heading" style="<?php echo esc_attr( $this->heading_style( $g, $g['accent'] ) ); ?>margin-bottom:20px;"><?php echo esc_html( $heading ); ?></h1>
+		<h1 class="ezmails-inline-heading" style="<?php echo esc_attr( $this->heading_style( $g, $g['accent'] ) ); ?>margin-bottom:20px;"><?php echo esc_html( $heading ); ?></h1>
 	<?php endif; ?>
 <?php
 		return ob_get_clean();
 	}
 
 	private function close( $ctx ) {
-		$g      = MECW_Settings::general();
+		$g      = EZMAILS_Settings::general();
 		$stacks = self::font_stacks( $g );
 		$font   = $stacks[0];
 		$cp     = (int) $g['content_padding'];
@@ -318,9 +318,9 @@ class MECW_Mailer {
 	</td></tr>
 
 	<?php if ( $footer || $links ) : ?>
-	<tr><td class="wec-footer" align="center" style="background-color:<?php echo esc_attr( $g['footer_bg'] ); ?>;color:<?php echo esc_attr( $g['footer_color'] ); ?>;padding:28px <?php echo esc_attr( $cp ); ?>px;text-align:center;font-family:<?php echo esc_attr( $font ); ?>;font-size:<?php echo esc_attr( (int) $g['footer_size'] ); ?>px;line-height:1.6;">
+	<tr><td class="ezmails-footer" align="center" style="background-color:<?php echo esc_attr( $g['footer_bg'] ); ?>;color:<?php echo esc_attr( $g['footer_color'] ); ?>;padding:28px <?php echo esc_attr( $cp ); ?>px;text-align:center;font-family:<?php echo esc_attr( $font ); ?>;font-size:<?php echo esc_attr( (int) $g['footer_size'] ); ?>px;line-height:1.6;">
 		<?php if ( $links ) : ?>
-			<div class="wec-social" style="margin-bottom:12px;"><?php echo implode( ' &nbsp;&middot;&nbsp; ', $links ); // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
+			<div class="ezmails-social" style="margin-bottom:12px;"><?php echo implode( ' &nbsp;&middot;&nbsp; ', $links ); // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
 		<?php endif; ?>
 		<?php echo $footer; // phpcs:ignore WordPress.Security.EscapeOutput ?>
 	</td></tr>
@@ -343,7 +343,7 @@ class MECW_Mailer {
 		if ( ! $this->enabled() ) {
 			return $css;
 		}
-		$g      = MECW_Settings::general();
+		$g      = EZMAILS_Settings::general();
 		$stacks = self::font_stacks( $g );
 		$font   = $stacks[0];
 		$head   = $stacks[1];
@@ -351,21 +351,17 @@ class MECW_Mailer {
 		$lh     = round( $g['line_height'] / 100, 2 );
 
 		$css .= "\nbody{background-color:{$g['page_bg']};}";
-		$css .= "\n.wec-body{font-family:{$font};color:{$g['text_color']};}";
-		$css .= "\n.wec-body p,.wec-body li{margin:0 0 16px;font-family:{$font};font-size:{$g['font_size']}px;line-height:{$lh};color:{$g['text_color']};}";
-		$css .= "\n.wec-body td,.wec-body th{font-family:{$font};}";
+		$css .= "\n.ezmails-body{font-family:{$font};color:{$g['text_color']};}";
+		$css .= "\n.ezmails-body p,.ezmails-body li{margin:0 0 16px;font-family:{$font};font-size:{$g['font_size']}px;line-height:{$lh};color:{$g['text_color']};}";
+		$css .= "\n.ezmails-body td,.ezmails-body th{font-family:{$font};}";
 		// !important so WooCommerce's own link rules (a, .link, h2 a) can never win over the chosen link colour.
-		$css .= "\n.wec-body a,.wec-body a.link,.wec-body h2 a,.wec-body h3 a{color:{$g['accent']} !important;font-weight:normal;text-decoration:{$deco};}";
-		$css .= "\n.wec-body a.wec-button{color:{$g['button_color']} !important;background-color:{$g['button_bg']} !important;text-decoration:none;}";
-		$css .= "\n.wec-body h2,.wec-body h3{color:{$g['accent']};font-family:{$head};font-size:{$g['h2_size']}px;font-weight:{$g['heading_weight']};text-transform:{$g['heading_transform']};}";
-		$css .= "\n.wec-body table.td,.wec-body .td{border-color:{$g['border_color']};color:{$g['text_color']};}";
-		$css .= "\n.wec-body hr{border-color:{$g['border_color']};}";
-		$css .= "\n.wec-footer p{margin:0 0 8px;color:{$g['footer_color']};font-family:{$font};font-size:{$g['footer_size']}px;}";
-		$css .= "\n.wec-footer a{color:{$g['footer_color']} !important;}";
-
-		if ( '' !== $g['custom_css'] ) {
-			$css .= "\n" . $g['custom_css'];
-		}
+		$css .= "\n.ezmails-body a,.ezmails-body a.link,.ezmails-body h2 a,.ezmails-body h3 a{color:{$g['accent']} !important;font-weight:normal;text-decoration:{$deco};}";
+		$css .= "\n.ezmails-body a.ezmails-button{color:{$g['button_color']} !important;background-color:{$g['button_bg']} !important;text-decoration:none;}";
+		$css .= "\n.ezmails-body h2,.ezmails-body h3{color:{$g['accent']};font-family:{$head};font-size:{$g['h2_size']}px;font-weight:{$g['heading_weight']};text-transform:{$g['heading_transform']};}";
+		$css .= "\n.ezmails-body table.td,.ezmails-body .td{border-color:{$g['border_color']};color:{$g['text_color']};}";
+		$css .= "\n.ezmails-body hr{border-color:{$g['border_color']};}";
+		$css .= "\n.ezmails-footer p{margin:0 0 8px;color:{$g['footer_color']};font-family:{$font};font-size:{$g['footer_size']}px;}";
+		$css .= "\n.ezmails-footer a{color:{$g['footer_color']} !important;}";
 
 		return $css;
 	}

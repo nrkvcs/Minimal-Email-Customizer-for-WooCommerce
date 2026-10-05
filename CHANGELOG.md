@@ -1,8 +1,20 @@
 # Changelog
 
-All notable changes to **Minimal Email Customizer for Woocommerce** are recorded here.
+All notable changes to **EZmails - Simple Email Customizer for WooCommerce** are recorded here.
 Versioning follows [Semantic Versioning](https://semver.org/). The current version lives in
-`minimal-email-customizer-for-woocommerce/minimal-email-customizer-for-woocommerce.php` (plugin header and `WEC_VERSION`) and `readme.txt` (Stable tag).
+`ezmails-simple-email-customizer-for-woocommerce/ezmails-simple-email-customizer-for-woocommerce.php` (plugin header and `WEC_VERSION`) and `readme.txt` (Stable tag).
+
+## [1.4.0] - 2026-10-05
+Changes made after the WordPress.org plugin review.
+### Changed
+- Renamed to **EZmails - Simple Email Customizer for WooCommerce**; slug, folder, main file and text domain are now `ezmails-simple-email-customizer-for-woocommerce`.
+- Every global now carries the `ezmails` prefix: functions, classes, constants, option (`ezmails_settings`), form/AJAX actions, nonces, script handles, JS object, admin menu slug and CSS classes. Public hooks are `ezmails_shortcodes`, `ezmails_prepare_email`, `ezmails_upgraded`.
+- Settings saved by earlier builds (`wec_settings`) are carried over once; export files from earlier builds can still be imported.
+- Admin menu entry is now **WooCommerce → EZmails**.
+### Removed
+- Custom CSS field (arbitrary CSS input is not allowed in the directory).
+- Admin notices (legacy-copy notice and "WooCommerce required" notice); the `Requires Plugins: woocommerce` header handles the dependency.
+- Donate link (the URL returned 404).
 
 ## [1.3.1] - 2026-10-03
 ### Changed

@@ -2,23 +2,23 @@
 	'use strict';
 
 	$(function () {
-		var $wrap = $('.wec-wrap');
+		var $wrap = $('.ezmails-wrap');
 		var last = null; // last focused insertable target: {el} or {editor}
 
-		$('.wec-color').wpColorPicker();
+		$('.ezmails-color').wpColorPicker();
 
 		/* Tabs */
-		var $tabs = $('.wec-tabs a');
-		var $panels = $('.wec-panel');
+		var $tabs = $('.ezmails-tabs a');
+		var $panels = $('.ezmails-panel');
 
 		function showTab(id) {
-			if (!$panels.filter('#wec-panel-' + id).length) {
+			if (!$panels.filter('#ezmails-panel-' + id).length) {
 				id = 'design';
 			}
 			$tabs.removeClass('nav-tab-active').filter('[data-tab="' + id + '"]').addClass('nav-tab-active');
-			$panels.hide().filter('#wec-panel-' + id).show();
+			$panels.hide().filter('#ezmails-panel-' + id).show();
 			$wrap.attr('data-tab', id);
-			try { sessionStorage.setItem('wecTab', id); } catch (e) {}
+			try { sessionStorage.setItem('ezmailsTab', id); } catch (e) {}
 		}
 
 		$tabs.on('click', function (e) {
@@ -28,42 +28,42 @@
 
 		var initial = window.location.hash.replace('#', '');
 		if (!initial) {
-			try { initial = sessionStorage.getItem('wecTab') || ''; } catch (e) {}
+			try { initial = sessionStorage.getItem('ezmailsTab') || ''; } catch (e) {}
 		}
 		showTab(initial || 'design');
 
 		/* Logo picker */
 		var frame;
-		$('.wec-media').on('click', function (e) {
+		$('.ezmails-media').on('click', function (e) {
 			e.preventDefault();
-			var $field = $(this).closest('.wec-logo-field');
+			var $field = $(this).closest('.ezmails-logo-field');
 			if (!frame) {
 				frame = wp.media({
-					title: wecAdmin.i18n.chooseImg,
-					button: { text: wecAdmin.i18n.useImg },
+					title: ezmailsAdmin.i18n.chooseImg,
+					button: { text: ezmailsAdmin.i18n.useImg },
 					library: { type: 'image' },
 					multiple: false
 				});
 			}
 			frame.off('select').on('select', function () {
 				var att = frame.state().get('selection').first().toJSON();
-				$field.find('.wec-logo-url').val(att.url);
-				$field.find('.wec-logo-preview').html($('<img>', { src: att.url, alt: '' }));
+				$field.find('.ezmails-logo-url').val(att.url);
+				$field.find('.ezmails-logo-preview').html($('<img>', { src: att.url, alt: '' }));
 			});
 			frame.open();
 		});
-		$('.wec-media-clear').on('click', function () {
-			var $field = $(this).closest('.wec-logo-field');
-			$field.find('.wec-logo-url').val('');
-			$field.find('.wec-logo-preview').empty();
+		$('.ezmails-media-clear').on('click', function () {
+			var $field = $(this).closest('.ezmails-logo-field');
+			$field.find('.ezmails-logo-url').val('');
+			$field.find('.ezmails-logo-preview').empty();
 		});
 
 		/* Shortcode insertion */
-		$(document).on('focusin', '.wec-insertable', function () {
+		$(document).on('focusin', '.ezmails-insertable', function () {
 			last = { el: this };
 		});
 		$(document).on('tinymce-editor-init', function (e, ed) {
-			if (ed.id === 'wec_footer_text') {
+			if (ed.id === 'ezmails_footer_text') {
 				ed.on('focus', function () { last = { editor: ed }; });
 			}
 		});
@@ -85,21 +85,21 @@
 		}
 
 		function toast(msg) {
-			var $t = $('<div class="wec-toast"/>').text(msg).appendTo('body');
+			var $t = $('<div class="ezmails-toast"/>').text(msg).appendTo('body');
 			setTimeout(function () { $t.fadeOut(300, function () { $t.remove(); }); }, 2200);
 		}
 
-		$('.wec-chip').on('mousedown', function (e) { e.preventDefault(); }).on('click', function () {
+		$('.ezmails-chip').on('mousedown', function (e) { e.preventDefault(); }).on('click', function () {
 			var code = $(this).data('code');
 			if (!insert(code)) {
 				if (navigator.clipboard) { navigator.clipboard.writeText(code); }
-				toast(wecAdmin.i18n.copied);
+				toast(ezmailsAdmin.i18n.copied);
 			}
 		});
 
 		/* Body mode: toggle relevant fields */
-		$('.wec-mode-select').on('change', function () {
-			$(this).closest('.wec-email').attr('data-mode', this.value);
+		$('.ezmails-mode-select').on('change', function () {
+			$(this).closest('.ezmails-email').attr('data-mode', this.value);
 		});
 
 		/* Design presets */
@@ -109,11 +109,11 @@
 			minimal: { page_bg: '#ffffff', body_bg: '#ffffff', text_color: '#222222', accent: '#000000', border_color: '#dddddd', header_bg: '#ffffff', header_color: '#000000', header_align: 'left', heading_bg: '#ffffff', heading_color: '#000000', heading_style: 'inline', heading_font: 'georgia', heading_transform: 'none', heading_weight: '400', font: 'georgia', footer_bg: '#ffffff', footer_color: '#777777', button_bg: '#000000', button_color: '#ffffff', radius: 0, button_radius: 0 }
 		};
 
-		$('.wec-preset').on('click', function () {
+		$('.ezmails-preset').on('click', function () {
 			var set = presets[$(this).data('preset')];
 			if (!set) { return; }
 			$.each(set, function (key, val) {
-				var $el = $('[name="wec[general][' + key + ']"]');
+				var $el = $('[name="ezmails[general][' + key + ']"]');
 				if (!$el.length) { return; }
 				if ($el.hasClass('wp-color-picker')) {
 					$el.wpColorPicker('color', val);
@@ -126,41 +126,41 @@
 		/* Preview & test */
 		function params(extra) {
 			return $.extend({
-				_wpnonce: wecAdmin.nonce,
-				email_id: $('#wec-prev-email').val(),
-				order_id: $('#wec-prev-order').val()
+				_wpnonce: ezmailsAdmin.nonce,
+				email_id: $('#ezmails-prev-email').val(),
+				order_id: $('#ezmails-prev-order').val()
 			}, extra);
 		}
 
 		function loadPreview() {
-			var url = wecAdmin.ajax + '?' + $.param(params({ action: 'wec_preview' }));
-			$('#wec-prev-frame').attr('src', url).addClass('is-loaded');
+			var url = ezmailsAdmin.ajax + '?' + $.param(params({ action: 'ezmails_preview' }));
+			$('#ezmails-prev-frame').attr('src', url).addClass('is-loaded');
 		}
 
-		$('#wec-prev-load').on('click', loadPreview);
+		$('#ezmails-prev-load').on('click', loadPreview);
 
-		$('.wec-goto-preview').on('click', function (e) {
+		$('.ezmails-goto-preview').on('click', function (e) {
 			e.preventDefault();
-			$('#wec-prev-email').val($(this).data('email'));
+			$('#ezmails-prev-email').val($(this).data('email'));
 			showTab('preview');
 			loadPreview();
 		});
 
-		$('#wec-prev-frame').on('load', function () {
+		$('#ezmails-prev-frame').on('load', function () {
 			try {
 				var doc = this.contentDocument;
 				if (doc && doc.body) { this.style.height = Math.max(500, doc.body.scrollHeight + 20) + 'px'; }
 			} catch (e) {}
 		});
 
-		$('#wec-test-send').on('click', function () {
-			var $msg = $('#wec-test-msg').removeClass('is-error is-ok').text(wecAdmin.i18n.sending);
-			$.post(wecAdmin.ajax, params({ action: 'wec_send_test', to: $('#wec-test-to').val() }))
+		$('#ezmails-test-send').on('click', function () {
+			var $msg = $('#ezmails-test-msg').removeClass('is-error is-ok').text(ezmailsAdmin.i18n.sending);
+			$.post(ezmailsAdmin.ajax, params({ action: 'ezmails_send_test', to: $('#ezmails-test-to').val() }))
 				.done(function (res) {
 					$msg.addClass(res.success ? 'is-ok' : 'is-error').text(res.data);
 				})
 				.fail(function () {
-					$msg.addClass('is-error').text(wecAdmin.i18n.error);
+					$msg.addClass('is-error').text(ezmailsAdmin.i18n.error);
 				});
 		});
 	});

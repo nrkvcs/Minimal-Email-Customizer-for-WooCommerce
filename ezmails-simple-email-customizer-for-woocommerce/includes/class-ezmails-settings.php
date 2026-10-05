@@ -4,9 +4,9 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Option storage, defaults and sanitization.
  */
-class MECW_Settings {
+class EZMAILS_Settings {
 
-	const OPTION = 'wec_settings';
+	const OPTION = 'ezmails_settings';
 
 	private static $cache = null;
 
@@ -50,7 +50,6 @@ class MECW_Settings {
 			'button_color'  => array( 'color', '#ffffff' ),
 			'button_radius' => array( 'int', 4, 0, 30 ),
 			'footer_size'   => array( 'int', 13, 10, 18 ),
-			'custom_css'    => array( 'css', '' ),
 			'width'         => array( 'int', 600, 360, 800 ),
 			'logo_url'      => array( 'url', '' ),
 			'logo_width'    => array( 'int', 180, 20, 600 ),
@@ -159,8 +158,6 @@ class MECW_Settings {
 				return ( 'inherit' === $value || isset( self::fonts()[ $value ] ) ) ? $value : $default;
 			case 'fontstack':
 				return trim( preg_replace( '/[^A-Za-z0-9 ,\'"_\-]/', '', $value ) );
-			case 'css':
-				return trim( str_replace( '<', '', wp_strip_all_tags( $value ) ) );
 			case 'html':
 				return wp_kses_post( $value );
 			case 'text':
@@ -204,7 +201,10 @@ class MECW_Settings {
 	 * Import / export
 	 * ---------------------------------------------------------------- */
 
-	const EXPORT_ID = 'minimal-email-customizer-for-woocommerce';
+	const EXPORT_ID = 'ezmails-simple-email-customizer-for-woocommerce';
+
+	/** Export IDs written by earlier builds of this plugin; still accepted on import. */
+	const LEGACY_EXPORT_IDS = array( 'minimal-email-customizer-for-woocommerce' );
 
 	/**
 	 * Build the export payload.
@@ -216,7 +216,7 @@ class MECW_Settings {
 		$data = array(
 			'plugin'      => self::EXPORT_ID,
 			'format'      => 1,
-			'version'     => MECW_VERSION,
+			'version'     => EZMAILS_VERSION,
 			'exported_at' => gmdate( 'c' ),
 			'source'      => home_url(),
 			'settings'    => array(),
@@ -238,8 +238,8 @@ class MECW_Settings {
 	 * @return array|WP_Error Counts of what was imported.
 	 */
 	public static function import_payload( $data, $parts ) {
-		if ( ! is_array( $data ) || ! isset( $data['plugin'], $data['settings'] ) || self::EXPORT_ID !== $data['plugin'] || ! is_array( $data['settings'] ) ) {
-			return new WP_Error( 'mecw_format', __( 'This file is not an export from Minimal Email Customizer for WooCommerce.', 'minimal-email-customizer-for-woocommerce' ) );
+		if ( ! is_array( $data ) || ! isset( $data['plugin'], $data['settings'] ) || ( self::EXPORT_ID !== $data['plugin'] && ! in_array( $data['plugin'], self::LEGACY_EXPORT_IDS, true ) ) || ! is_array( $data['settings'] ) ) {
+			return new WP_Error( 'ezmails_format', __( 'This file is not an export from EZmails - Simple Email Customizer for WooCommerce.', 'ezmails-simple-email-customizer-for-woocommerce' ) );
 		}
 
 		$in      = $data['settings'];
@@ -263,7 +263,7 @@ class MECW_Settings {
 		}
 
 		if ( ! $result['general'] && ! $result['emails'] ) {
-			return new WP_Error( 'mecw_empty', __( 'The file contains nothing to import for the selected options.', 'minimal-email-customizer-for-woocommerce' ) );
+			return new WP_Error( 'ezmails_empty', __( 'The file contains nothing to import for the selected options.', 'ezmails-simple-email-customizer-for-woocommerce' ) );
 		}
 
 		update_option(
