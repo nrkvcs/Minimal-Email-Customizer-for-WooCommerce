@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       EZmails - Simple Email Customizer for WooCommerce
  * Description:       Give every WooCommerce email a fixed, branded header and footer, and customize the subject, heading and content of each email with dynamic order shortcodes.
- * Version:           1.4.0
+ * Version:           1.4.1
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            Norbert Kovacs
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EZMAILS_VERSION', '1.4.0' );
+define( 'EZMAILS_VERSION', '1.4.1' );
 define( 'EZMAILS_FILE', __FILE__ );
 define( 'EZMAILS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'EZMAILS_URL', plugin_dir_url( __FILE__ ) );

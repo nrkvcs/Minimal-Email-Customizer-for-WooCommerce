@@ -4,6 +4,12 @@ All notable changes to **EZmails - Simple Email Customizer for WooCommerce** are
 Versioning follows [Semantic Versioning](https://semver.org/). The current version lives in
 `ezmails-simple-email-customizer-for-woocommerce/ezmails-simple-email-customizer-for-woocommerce.php` (plugin header and `WEC_VERSION`) and `readme.txt` (Stable tag).
 
+## [1.4.1] - 2026-10-09
+### Fixed
+- "Additional content" was printed twice. WooCommerce reads that field before the email template (and the plugin's header hook) runs, so the plugin's fallback for templates that never print it did not know it had already been shown. The fallback now tracks this per email object and only prints the text when the template really skipped it.
+### Changed
+- Readme tags: email customizer, email designer, email template, woocommerce email customizer, woocommerce emails.
+
 ## [1.4.0] - 2026-10-05
 Changes made after the WordPress.org plugin review.
 ### Changed

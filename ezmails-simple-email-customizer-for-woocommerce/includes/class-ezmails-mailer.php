@@ -24,7 +24,7 @@ class EZMAILS_Mailer {
 	private $text_tpl = '';
 
 	/** Whether the current email's template asked for "additional content". */
-	private $additional_used = false;
+	private $additional_seen = array();
 
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -88,8 +88,9 @@ class EZMAILS_Mailer {
 		if ( '' === $tpl ) {
 			return $value;
 		}
-		if ( 'additional' === $field ) {
-			$this->additional_used = true;
+		if ( 'additional' === $field && $email instanceof WC_Email ) {
+			// WooCommerce reads this field before the template (and our header hook) runs, so remember it per email object.
+			$this->additional_seen[ spl_object_id( $email ) ] = true;
 		}
 
 		if ( $email instanceof WC_Email ) {
@@ -115,9 +116,8 @@ class EZMAILS_Mailer {
 			return;
 		}
 		$this->unhook_defaults();
-		$this->current_email   = $email instanceof WC_Email ? $email : null;
-		$this->additional_used = false;
-		$this->text_level      = 0;
+		$this->current_email = $email instanceof WC_Email ? $email : null;
+		$this->text_level    = 0;
 
 		$cfg = $this->current_email ? EZMAILS_Settings::email( $this->current_email->id ) : EZMAILS_Settings::email( '' );
 		$ctx = EZMAILS_Shortcodes::context( $this->current_email );
@@ -190,7 +190,11 @@ class EZMAILS_Mailer {
 		}
 
 		// Some third-party templates never print WooCommerce's "additional content"; do it for them.
-		if ( $email && ! $this->additional_used ) {
+		$additional_printed = $email && isset( $this->additional_seen[ spl_object_id( $email ) ] );
+		if ( $email ) {
+			unset( $this->additional_seen[ spl_object_id( $email ) ] );
+		}
+		if ( $email && ! $additional_printed ) {
 			$cfg = EZMAILS_Settings::email( $email->id );
 			if ( trim( $cfg['additional'] ) !== '' && 'custom' !== $cfg['body_mode'] && 'plain' !== $email->get_email_type() ) {
 				echo $this->block( $email->format_string( $cfg['additional'] ), $ctx ); // phpcs:ignore WordPress.Security.EscapeOutput

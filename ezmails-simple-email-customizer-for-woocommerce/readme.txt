@@ -1,11 +1,12 @@
 === EZmails - Simple Email Customizer for WooCommerce ===
 Contributors: norkovacs
-Tags: woocommerce, email, email customizer, email templates, shortcodes
+Donate link: https://kovacs.cloud/donate
+Tags: email customizer, email designer, email template, woocommerce email customizer, woocommerce emails
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
 Requires Plugins: woocommerce
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -116,6 +117,10 @@ No. It stores its settings in your database and makes no external requests. Sett
 
 == Changelog ==
 
+= 1.4.1 =
+* Fix: text entered in the "Additional content" field was shown twice in the email.
+* Updated the plugin tags.
+
 = 1.4.0 =
 * Renamed to "EZmails - Simple Email Customizer for WooCommerce" (new slug and code prefix `ezmails`).
 * Removed the custom CSS field. Use the Design tab options instead.
@@ -147,6 +152,9 @@ No. It stores its settings in your database and makes no external requests. Sett
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.4.1 =
+Fixes "Additional content" appearing twice in emails.
 
 = 1.4.0 =
 Plugin renamed to EZmails. The custom CSS field was removed; all other settings are kept.
